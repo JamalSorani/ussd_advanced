@@ -310,7 +310,7 @@ class UssdAdvancedPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Basic
       slot = 0
     }
 
-    ussdApi.callUSSDInvoke(activity!!, ussdCode, slot, object : USSDController.CallbackInvoke {
+    ussdApi.callUSSDInvoke(activity ?? context!!, ussdCode, slot, object : USSDController.CallbackInvoke {
 
       override fun responseInvoke(ev: AccessibilityEvent) {
         event = AccessibilityEvent.obtain(ev)
