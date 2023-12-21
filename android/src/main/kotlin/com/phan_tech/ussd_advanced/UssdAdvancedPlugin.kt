@@ -268,8 +268,9 @@ class UssdAdvancedPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Basic
     if(subscriptionId == -1){
       slot = 0
     }
-
-    ussdApi.callUSSDInvoke(activity!!, ussdCode, slot, object : USSDController.CallbackInvoke {
+    
+    if(activity == null) {
+      ussdApi.callUSSDInvoke(context!!, ussdCode, slot, object : USSDController.CallbackInvoke {
 
       override fun responseInvoke(ev: AccessibilityEvent) {
         event = AccessibilityEvent.obtain(ev)
@@ -293,6 +294,34 @@ class UssdAdvancedPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Basic
 
       }
     })
+    } else {
+      ussdApi.callUSSDInvoke(activity!!, ussdCode, slot, object : USSDController.CallbackInvoke {
+
+      override fun responseInvoke(ev: AccessibilityEvent) {
+        event = AccessibilityEvent.obtain(ev)
+        setListener()
+
+        try {
+          if(ev.text.isNotEmpty()) {
+            result.success(ev.text.first().toString())
+          }else{
+            result.success(null)
+          }
+        }catch (e: Exception){}
+      }
+
+      override fun over(message: String) {
+        try {
+          basicMessageChannel.setMessageHandler(null)
+          basicMessageChannel.send(message)
+          result.success(message)
+        }catch (e: Exception){}
+
+      }
+    })
+    }
+
+    
   }
 
   private fun multisessionUssdCancel(){
