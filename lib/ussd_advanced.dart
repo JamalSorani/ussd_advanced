@@ -24,7 +24,7 @@ class UssdAdvanced {
 
   static Future<String?> multisessionUssd({required String code, int subscriptionId = 1, bool sepereate = true}) async {
     if (sepereate) {
-      var _codeItem = _CodeAndBody.fromUssdCode(code, sepereate);
+      var _codeItem = _CodeAndBody.fromUssdCode(code);
 
 
       String response = await _channel.invokeMethod('multisessionUssd', {"subscriptionId": subscriptionId, "code": _codeItem.code}).catchError((e) {
@@ -38,7 +38,7 @@ class UssdAdvanced {
       }
       return response;
     } else {
-      var _codeItem = _CodeAndBody.fromUssdCode(code, sepereate);
+      var _codeItem = _CodeAndBody.fromUssdCode(code);
 
       String response = await _channel.invokeMethod('multisessionUssd', {"subscriptionId": subscriptionId, "code": _codeItem.code}).catchError((e) {
             throw e;
