@@ -25,7 +25,7 @@ class UssdAdvanced {
   static Future<String?> multisessionUssd({required String code, int subscriptionId = 1, bool sepereate = true}) async {
     if (sepereate) {
       var _codeItem = _CodeAndBody.fromUssdCode(code, sepereate);
-      
+
 
       String response = await _channel.invokeMethod('multisessionUssd', {"subscriptionId": subscriptionId, "code": _codeItem.code}).catchError((e) {
             throw e;
@@ -90,26 +90,33 @@ class UssdAdvanced {
 
     return _streamController;
   }
+
+  static Future<bool> hasPermissions()async{
+    try{
+      return (await _channel.invokeMethod('hasPermissions')) == true;
+    }catch(_){return false;}
+  }
+
+  static void requestPermissions(){
+    try{
+      _channel.invokeMethod('requestPermissions');
+    }catch(_){}
+  }
 }
 
 class _CodeAndBody {
   _CodeAndBody(this.code, this.messages);
-  _CodeAndBody.fromUssdCode(String _code, [bool seperate = true]) {
-    if (seperate) {
-      var _removeCode = _code.split('#')[0];
-      var items = _removeCode.split("*").toList();
+  _CodeAndBody.fromUssdCode(String _code) {
+    var _removeCode = _code.substring(1, _code.length - 1);
+    // var _removeCode = _code.split('#')[0];
+    var items = _removeCode.split("*").toList();
 
-      code = '*${items[1]}#';
-      if (items.length > 1) {
-        messages = items.sublist(2);
-      }
-    } else {
-      var _removeCode = _code.split('#')[0];
-      var items = _removeCode.split("*").toList();
-      if (items.length > 1) {
-        messages = items.sublist(2);
-      }
-      code = _code;
+    // code = '*${items[1]}#';
+    code = '${_code[0]}${items[0]}#';
+
+    if (items.length > 1) {
+      // messages = items.sublist(2);
+      messages = items.sublist(1);
     }
   }
   late String code;
