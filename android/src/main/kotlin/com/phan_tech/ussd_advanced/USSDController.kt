@@ -30,7 +30,8 @@ import androidx.annotation.RequiresApi
 
 val mapM = hashMapOf(
     "KEY_LOGIN" to listOf("espere", "waiting", "loading", "esperando"),
-    "KEY_ERROR" to listOf("problema", "problem", "error", "null"))
+    "KEY_ERROR" to listOf("problema", "problem", "error", "null")
+)
 
 @SuppressLint("StaticFieldLeak")
 object USSDController : USSDInterface, USSDApi {
@@ -38,10 +39,12 @@ object USSDController : USSDInterface, USSDApi {
     internal const val KEY_LOGIN = "KEY_LOGIN"
     internal const val KEY_ERROR = "KEY_ERROR"
 
-    private val simSlotName = arrayOf("extra_asus_dial_use_dualsim",
-            "com.android.phone.extra.slot", "slot", "simslot", "sim_slot", "subscription",
-            "Subscription", "phone", "com.android.phone.DialingMode", "simSlot", "slot_id",
-            "simId", "simnum", "phone_type", "slotId", "slotIdx")
+    private val simSlotName = arrayOf(
+        "extra_asus_dial_use_dualsim",
+        "com.android.phone.extra.slot", "slot", "simslot", "sim_slot", "subscription",
+        "Subscription", "phone", "com.android.phone.DialingMode", "simSlot", "slot_id",
+        "simId", "simnum", "phone_type", "slotId", "slotIdx"
+    )
 
     lateinit var context: Context
         private set
@@ -74,8 +77,10 @@ object USSDController : USSDInterface, USSDApi {
      * @param callbackInvoke  a listener object as to return answer
      */
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun callUSSDInvoke(context: Context, ussdPhoneNumber: String,
-                                callbackInvoke: CallbackInvoke) {
+    override fun callUSSDInvoke(
+        context: Context, ussdPhoneNumber: String,
+        callbackInvoke: CallbackInvoke
+    ) {
         this.context = context
         callUSSDInvoke(this.context, ussdPhoneNumber, 0, callbackInvoke)
     }
@@ -104,9 +109,11 @@ object USSDController : USSDInterface, USSDApi {
      */
     @RequiresApi(Build.VERSION_CODES.M)
     @SuppressLint("MissingPermission")
-    override fun callUSSDInvoke(context: Context, ussdPhoneNumber: String, simSlot: Int,
-                                callbackInvoke: CallbackInvoke) {
-		sendType = false
+    override fun callUSSDInvoke(
+        context: Context, ussdPhoneNumber: String, simSlot: Int,
+        callbackInvoke: CallbackInvoke
+    ) {
+        sendType = false
         this.context = context
         this.callbackInvoke = callbackInvoke
         if (verifyAccessibilityAccess(this.context)) {
@@ -122,6 +129,7 @@ object USSDController : USSDInterface, USSDApi {
         when {
             !map.containsKey(KEY_LOGIN) || !map.containsKey(KEY_ERROR) ->
                 callbackInvoke.over("Bad Mapping structure")
+
             ussdPhoneNumber.isEmpty() -> callbackInvoke.over("Bad ussd number")
             else -> {
                 val phone = Uri.encode("#")?.let {
@@ -165,7 +173,8 @@ object USSDController : USSDInterface, USSDApi {
      * @param[text] String will be sent by EditText
      */
     override fun sendData(text: String) = USSDServiceKT.send(text)
-    override fun sendData2(text: String, event: AccessibilityEvent) = USSDServiceKT.send2(text, event)
+    override fun sendData2(text: String, event: AccessibilityEvent) =
+        USSDServiceKT.send2(text, event)
 
 
     override fun stopRunning() {
@@ -189,7 +198,12 @@ object USSDController : USSDInterface, USSDApi {
         sendType = true
         ussdInterface?.sendData(text)
     }
-    override fun send2(text: String, event: AccessibilityEvent, callbackMessage: (AccessibilityEvent) -> Unit) {
+
+    override fun send2(
+        text: String,
+        event: AccessibilityEvent,
+        callbackMessage: (AccessibilityEvent) -> Unit
+    ) {
         this.callbackMessage = callbackMessage
         sendType = true
         ussdInterface?.sendData2(text, event)
@@ -224,9 +238,9 @@ object USSDController : USSDInterface, USSDApi {
      * @return The enable value of the accessibility
      */
     override fun verifyAccessibilityAccess(context: Context): Boolean =
-            isAccessibilityServicesEnable(context).also {
-                if (!it) openSettingsAccessibility(context as Activity)
-            }
+        isAccessibilityServicesEnable(context).also {
+            if (!it) openSettingsAccessibility(context as Activity)
+        }
 
 
     private fun openSettingsAccessibility(activity: Activity) {
@@ -237,15 +251,28 @@ object USSDController : USSDInterface, USSDApi {
         (context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager)?.apply {
             installedAccessibilityServiceList.forEach { service ->
                 if (service.id.contains(context.packageName) &&
-                        Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED) == 1){
-                    Settings.Secure.getString(context.applicationContext.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)?.let {
+                    Settings.Secure.getInt(
+                        context.applicationContext.contentResolver,
+                        Settings.Secure.ACCESSIBILITY_ENABLED
+                    ) == 1
+                ) {
+                    Settings.Secure.getString(
+                        context.applicationContext.contentResolver,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                    )?.let {
                         if (it.split(':').contains(service.id)) return true
                     }
-                }else if(service.id.contains(context.packageName) && Settings.Secure.getString(context.applicationContext.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES).toString().contains(service.id)){
-                    return true;
+                } else if (service.id.contains(context.packageName)) {
+                    Settings.Secure.getString(
+                        context.applicationContext.contentResolver,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                    )?.let {
+                        if (it.toString().contains(service.id)) {
+                            return true;
+                        }
+                    }
+
                 }
-
-
             }
         }
         return false
